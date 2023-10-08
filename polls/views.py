@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.template import loader
 from django.http import Http404, HttpResponseRedirect
 from django.utils import timezone
+
 # Create your views here.
 from django.http import HttpResponse
 from django.urls import reverse
@@ -22,18 +23,15 @@ class QuestionListAPIView(APIView):
 
     # 1. List all
     def get(self, request, *args, **kwargs):
-     
         questions = Question.objects.all()
         serializer = QuestionSerializer(questions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # 2. Create
     def post(self, request, *args, **kwargs):
-    
         data = {
             "question_text": request.data.get("question_text"),
             "pub_date": timezone.now(),
-           
         }
         serializer = QuestionSerializer(data=data)
         if serializer.is_valid():
@@ -42,15 +40,16 @@ class QuestionListAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
         """Return the last five published questions."""
-        return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[
-        :5
-    ]
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by(
+            "-pub_date"
+        )[:5]
 
 
 class DetailView(generic.DetailView):
